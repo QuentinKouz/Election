@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "structures.h"
+#include "csv.h"
 
 
 
@@ -26,11 +27,10 @@ int verifier_votant(char fichier[], int longueur, votant * votants[], int numero
 }
 
 
-/* La fonction retournera :
+/* Le main retournera :
   - 0 s'il n'est aucun fichier
   - 1 s'il est inscrit dans JUGEMENT
-  - 2 s'il est inscrit dans CONDORCET
-  - 3 s'il est inscrit dans JUGEMENT et CONDORCET*/
+  - 2 s'il est inscrit dans CONDORCET*/
 int main(int argc, char * argv[]) {
     SHA256_CTX sha;
     int len_data;
@@ -43,6 +43,7 @@ int main(int argc, char * argv[]) {
     int type_vote = AUCUN;
     char fichier_resultat_jugement[] = "ResultatsVote/jugement.csv";
     char fichier_resultat_condorcet[] = "ResultatsVote/VoteCondorcet.csv";
+    int nb_lignes_vote;
 
 
     // Vérification du bon nombre d'argument (Gestion d'erreur à l'appel)
@@ -52,7 +53,7 @@ int main(int argc, char * argv[]) {
     }
 
     int numero_etudiant = atoi(argv[1]);
-    char key[] = argv[2];
+    char* key = argv[2];
 
     // On vérifie si la personne est dans la liste des votants de Jugement
     type_vote += verifier_votant(fichier_votant_jugement,LONGUEUR_JUGEMENT, &votant_jugement, numero_etudiant, key, JUGEMENT);
@@ -66,15 +67,13 @@ int main(int argc, char * argv[]) {
     }
 
 
-
+  vote votes[nb_lignes_vote];
     // on crée la structure des votes en fonction du type de vote puis on l'initialise
     if (type_vote == JUGEMENT) {
       nb_lignes_vote = LONGUEUR_RESULTAT_JUGEMENT;
-      vote votes[nb_lignes_vote];
       lecture_csv(fichier_resultat_jugement, &votes);
     } else if (type_vote == CONDORCET){
       nb_lignes_vote = LONGUEUR_RESULTAT_CONDORCET;
-      vote votes[nb_lignes_vote];
       lecture_csv(fichier_resultat_condorcet, &votes);
     } else {
       printf("Il y a une erreur lors de la vérification\n");
@@ -91,7 +90,7 @@ int main(int argc, char * argv[]) {
 
     // On regarde dans les votes à quelle ligne se situe le vote du votant
     int ligne_resultat_vote =0;
-    while (ligne_resultat_vote<nb_lignes_vote && vote[ligne_resultat_vote].hashed != hash) {
+    while (ligne_resultat_vote<nb_lignes_vote && votes[ligne_resultat_vote].hashed != hash) {
         ligne_resultat_vote++;
     }
     if (votes[ligne_resultat_vote].hashed != hash){

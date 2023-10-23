@@ -1,10 +1,18 @@
 CC = gcc
-CFLAGS = -std=c99 -pedantic -Wall
+CFLAGS = -w -std=c99 -pedantic -Wall
+SOURCES = verify_my_vote.c sha256.c sha256_utils.c csv.c
+OBJECTS = $(SOURCES:.c=.o)
+EXECUTABLE = verify_my_vote
 
-verify_my_vote: verify_my_vote.c
-	$(CC) $(CFLAGS) -o verify_my_vote verify_my_vote.c
+.PHONY: all clean
 
-.PHONY: clean
+all: $(EXECUTABLE)
+
+$(EXECUTABLE): $(OBJECTS)
+	$(CC) $(OBJECTS) -o $@
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f verify_my_vote
+	rm -f $(EXECUTABLE) $(OBJECTS)

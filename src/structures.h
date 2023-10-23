@@ -1,3 +1,6 @@
+#ifndef STRUCTURES_H
+#define STRUCTURES_H
+
 #define LONGUEUR_JUGEMENT 24
 #define LONGUEUR_RESULTAT_JUGEMENT 25
 #define LONGUEUR_CONDORCET 38
@@ -15,3 +18,6 @@ typedef struct {
     char* hashed;
     int * votes[]; // votes [index burger] [notes burger]
 } vote;
+
+
+#endif // STRUCTURES_H
