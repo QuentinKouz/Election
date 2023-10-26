@@ -8,7 +8,7 @@
 
 typedef struct {
     int num_etu;
-    char key[];
+    char key[50];
 } votant;
 
 typedef struct {

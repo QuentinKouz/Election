@@ -17,10 +17,16 @@
 // Check si le num étudiant est bien dans le fichier ainsi que la clé
 // Puis check si la clé et le num étudiant sont sur la même ligne
 int verifier_votant(char fichier[], int longueur, votant * votants[], int numero_etudiant, char key[], int methode){
-  lecture_csv(fichier,&votants, NULL);
+  lecture_csv(fichier, &votants, NULL);
+  printf("num_etu: %d key: %s\n", votants[0]->num_etu, votants[0]->key);
   for (int ligne = 0; ligne < longueur; ligne++){
-    if ((votants[ligne]->num_etu == numero_etudiant) && (strcmp(key,votants[ligne]->key) == 0)){
+    printf("%d\n", ligne);
+    if (((votants[ligne])->num_etu == numero_etudiant)) {
+      printf("1\n");
+      if (strcmp(key,votants[ligne]->key) == 0){
+        printf("ligne n°%d\n", ligne);
         return methode;
+      }
     }
   }
   return AUCUN;
