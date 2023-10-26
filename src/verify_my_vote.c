@@ -17,7 +17,7 @@
 // Check si le num étudiant est bien dans le fichier ainsi que la clé
 // Puis check si la clé et le num étudiant sont sur la même ligne
 int verifier_votant(char fichier[], int longueur, votant * votants[], int numero_etudiant, char key[], int methode){
-  lecture_csv(fichier,&votants);
+  lecture_csv(fichier,&votants, NULL);
   for (int ligne = 0; ligne < longueur; ligne++){
     if ((votants[ligne]->num_etu == numero_etudiant) && (strcmp(key,votants[ligne]->key) == 0)){
         return methode;
@@ -36,13 +36,13 @@ int main(int argc, char * argv[]) {
     int len_data;
     BYTE data; // clé
     BYTE * hash;
-    char fichier_votant_jugement[] = "ResultatsVote/codeJugementNumEtu.csv";
-    char fichier_votant_condorcet[] = "ResultatsVote/codeCondorcetNumEtu.csv";
+    char fichier_votant_jugement[] = "./ResultatsVote/codeJugementNumEtu.csv";
+    char fichier_votant_condorcet[] = "./ResultatsVote/codeCondorcetNumEtu.csv";
     votant votant_jugement[LONGUEUR_JUGEMENT];
     votant votant_condorcet[LONGUEUR_CONDORCET];
     int type_vote = AUCUN;
-    char fichier_resultat_jugement[] = "ResultatsVote/jugement.csv";
-    char fichier_resultat_condorcet[] = "ResultatsVote/VoteCondorcet.csv";
+    char fichier_resultat_jugement[] = "./ResultatsVote/voteJugement.csv";
+    char fichier_resultat_condorcet[] = "./ResultatsVote/voteCondorcet.csv";
     int nb_lignes_vote;
 
 
@@ -71,10 +71,10 @@ int main(int argc, char * argv[]) {
     // on crée la structure des votes en fonction du type de vote puis on l'initialise
     if (type_vote == JUGEMENT) {
       nb_lignes_vote = LONGUEUR_RESULTAT_JUGEMENT;
-      lecture_csv(fichier_resultat_jugement, &votes);
+      lecture_csv(fichier_resultat_jugement, NULL, &votes);
     } else if (type_vote == CONDORCET){
       nb_lignes_vote = LONGUEUR_RESULTAT_CONDORCET;
-      lecture_csv(fichier_resultat_condorcet, &votes);
+      lecture_csv(fichier_resultat_condorcet, NULL, &votes);
     } else {
       printf("Il y a une erreur lors de la vérification\n");
       exit(1);
