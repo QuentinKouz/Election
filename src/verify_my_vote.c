@@ -131,5 +131,21 @@ int main(int argc, char * argv[]) {
       exit(3);
     }
 
+
+    // Libération de la mémoire
+    for (int i = 0; i < LONGUEUR_JUGEMENT; i++){
+        free(votant_jugement[i]);
+    }
+
+    for (int i = 0; i < LONGUEUR_CONDORCET; i++){
+        free(votant_condorcet[i]);
+    }
+
+    for (int i = 0; i < nb_lignes_vote; i++){
+        free(votes[i]);
+    }
+
+    printf("Tout a bien été libéré\n");
+
     return 0;
 }
