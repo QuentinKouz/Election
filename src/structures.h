@@ -5,18 +5,21 @@
 #define LONGUEUR_RESULTAT_JUGEMENT 25
 #define LONGUEUR_CONDORCET 38
 #define LONGUEUR_RESULTAT_CONDORCET 39
+#define MAX_LINE_LENGTH 2048
+#define MAX_VOTANTS 100
+#define MAX_VOTES 100
 
 typedef struct {
     int num_etu;
-    char key[50];
+    char key[15];
 } votant;
 
 typedef struct {
     int reponse;
-    char* date;
-    char* cours;
-    char* hashed;
-    int * votes[]; // votes [index burger] [notes burger]
+    char date[20];
+    char cours[50];
+    char hashed[64];
+    int votes[10]; // votes [index burger]
 } vote;
 
 

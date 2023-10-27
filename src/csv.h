@@ -3,6 +3,6 @@
 
 #include "structures.h"
 
-void lecture_csv(char* fichier, votant *votants, vote *votes);
+void lecture_csv(char* nom_fichier, votant* votants[MAX_VOTANTS], vote* votes[MAX_VOTES]);
 
 #endif // CSV_H

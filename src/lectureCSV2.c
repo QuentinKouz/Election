@@ -39,12 +39,12 @@ int lecture_csv2(const char *fichier, vote votes[MAX_VOTES], int *nb_votes) {
     }
 
     while (fgets(line, sizeof(line), fichier_csv) && *nb_votes < MAX_VOTES) {
-        
+
         char *data = strtok(line, ",");
         if (data != NULL) {
             votes[*nb_votes].reponse = atoi(data);
         }
-        
+
         data = strtok(NULL, ",");
         if (data != NULL) {
             votes[*nb_votes].date = strdup(data);
@@ -84,13 +84,13 @@ int main() {
         for (int i = 0; i < nb_votes; i++) {
             printf("Vote %d - Réponse : %d, Date : %s, Cours : %s, Hash : %s\n", i + 1, votes[i].reponse, votes[i].date, votes[i].cours, votes[i].hashed);
             printf("Votes pour chaque burger : ");
-            
+
             for (int j = 0; j < 10; j++) {
                 printf("%d ", *(votes[i].votes[j]));
             }
-            
+
             printf("\n");
-            
+
             // Libérer la mémoire allouée pour ce vote
             liberer_vote(&votes[i]);
         }
@@ -98,4 +98,3 @@ int main() {
 
     return 0;
 }
-

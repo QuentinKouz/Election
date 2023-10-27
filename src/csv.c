@@ -6,18 +6,16 @@
 #include <string.h>
 
 
-#define MAX_LINE_LENGTH 1024
-#define MAX_VOTANTS 100
-#define MAX_VOTES 100
 
 
-void lecture_csv_votant(const char * nom_fichier, votant *votants[MAX_VOTANTS]) {
+
+void lecture_csv_votant(const char *nom_fichier, votant *votants[MAX_VOTANTS]) {
     FILE *file = fopen(nom_fichier, "r");
+
     if (file == NULL) {
         fprintf(stderr, "Erreur lors de l'ouverture du fichier.\n");
         exit(1);
     }
-    printf("fichier %s ouvert avec succès\n", nom_fichier);
 
     char line[MAX_LINE_LENGTH];
     int votants_count = 0;
@@ -29,52 +27,57 @@ void lecture_csv_votant(const char * nom_fichier, votant *votants[MAX_VOTANTS]) 
         exit(1);
     }
 
-        printf("Début lecture fichier\n");
     int num_etu;
     char key[50];
     while (fgets(line, sizeof(line), file)) {
-        if (sscanf(line, "%d %s", &votants[votants_count]-> num_etu, &votants[votants_count]-> key) == 2) {
-            printf("num_etu: %d key: %s\n", votants[votants_count]->num_etu, votants[votants_count]->key);
-            votants_count++;
+        if (sscanf(line, "%d %s", &num_etu, &key) == 2) {
+          votants[votants_count]->num_etu = num_etu;
+          strcpy(votants[votants_count]->key, key);
+          votants_count++;
         }
     }
     fclose(file);
 }
 
 
-void lecture_csv_vote(const char * nom_fichier, vote votes[MAX_VOTES]) {
+void lecture_csv_vote(const char * nom_fichier, vote *votes[MAX_VOTES]) {
     FILE *file = fopen(nom_fichier, "r");
-
 
     if (file == NULL) {
         fprintf(stderr, "Erreur lors de l'ouverture du fichier.\n");
         exit(1);
     }
 
-
     char line[MAX_LINE_LENGTH];
     int nb_votants = 0;
 
+    // on ignore la première ligne
+    if (fgets(line, sizeof(line), file) == NULL) {
+        fprintf(stderr, "Le fichier est vide.\n");
+        fclose(file);
+        exit(1);
+    }
 
+    printf("Juste ? \n" );
     while (fgets(line, sizeof(line), file)) {
         char *token = strtok(line, ",");
         int field_count = 0;
         while (token != NULL && field_count < 14) {
             switch (field_count) {
                 case 0:
-                    votes[nb_votants].reponse = atoi(token);
+                    votes[nb_votants]->reponse = atoi(token);
                     break;
                 case 1:
-                    strcpy(votes[nb_votants].date, token);
+                    strcpy(votes[nb_votants]->date, token);
                     break;
                 case 2:
-                    strcpy(votes[nb_votants].cours, token);
+                    strcpy(votes[nb_votants]->cours, token);
                     break;
                 case 3:
-                    strcpy(votes[nb_votants].hashed, token);
+                    strcpy(votes[nb_votants]->hashed, token);
                     break;
                 default:
-                    votes[nb_votants].votes[field_count-4][0] = atoi(token);
+                    votes[nb_votants]->votes[field_count-4] = atoi(token);
                     break;
             }
             token = strtok(NULL, ",");
@@ -82,21 +85,21 @@ void lecture_csv_vote(const char * nom_fichier, vote votes[MAX_VOTES]) {
         }
         nb_votants++;
     }
-
-
     fclose(file);
 }
 
 
-void lecture_csv(char* nom_fichier, votant* votants, vote* votes) {
+void lecture_csv(char* nom_fichier, votant* votants[MAX_VOTANTS], vote* votes[MAX_VOTES]) {
     if (votes == NULL && votants != NULL) {
-        lecture_csv_votant(nom_fichier, &votants);
+        lecture_csv_votant(nom_fichier, votants);
     } else if (votes != NULL && votants == NULL) {
-        lecture_csv_vote(nom_fichier, &votes);
+        printf("Bien dans csv vote\n");
+        lecture_csv_vote(nom_fichier, votes);
     } else {
         fprintf(stderr, "erreur appel fonction\n");
         exit(1);
     }
+    printf("tout s'est bien déroulé\n");
 }
 
 
