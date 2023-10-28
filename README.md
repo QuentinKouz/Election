@@ -8,7 +8,11 @@ Pour exécuter le programme verify_my_vote:
 Il faudra ensuite renseigner le nom en majuscule et le prenom avec majusucle a la premiere lettre.
 
 vous pouvez utiliser pour tester: 
+
 num etu : 22106234
+
 key : SvcBJ37b
+
 nom : MOUSSAOUI
+
 prenom : Salim
