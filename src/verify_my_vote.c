@@ -28,26 +28,11 @@ int verifier_votant(char fichier[], int longueur, votant * votants[], int numero
   return AUCUN;
 }
 
-
-void convertirEnBinaire(const char* chaine, char* binaire) {
-    int index = 0;
-
-    for(int i = 0; chaine[i] != '\0'; i++) {
-        char caractere = chaine[i];
-        for(int j = 7; j >= 0; j--) {
-            binaire[index++] = ((caractere >> j) & 1) + '0';
-        }
-    }
-    binaire[index] = '\0'; // Ajouter le caractère nul de fin de chaîne
-}
-
 void creerHash(char *nom, char *prenom,char * key, char *hash){
     // conversion de la clé en binaire
-    //unsigned long int valeur = strtoul(data, NULL, 16);
-    char cleBinaire[100];
-    convertirEnBinaire(key, cleBinaire);
+    strcat(nom, " ");
     strcat(nom, prenom);
-    strcat(nom, cleBinaire);
+    strcat(nom, key);
     sha256ofString(nom, hash);
 }
 
@@ -143,9 +128,9 @@ int main(int argc, char * argv[]) {
 
     // Affichage du vote
     if (type_vote == JUGEMENT) {
-      printf("Votre vote se situe à la ligne %d du fichier JUGEMENT.\n", ligne_resultat_vote);
+      printf("Votre vote se situe à la ligne %d du fichier voteJugement.csv.\n", ligne_resultat_vote+2);
     } else if (type_vote == CONDORCET){
-      printf("Votre vote se situe à la ligne %d du fichier CONDORCET.\n", ligne_resultat_vote);
+      printf("Votre vote se situe à la ligne %d du fichier VoteCondorcet.csv.\n", ligne_resultat_vote+2);
     } else {
       printf("Il y a une erreur lors de la vérification\n");
       exit(3);
@@ -162,7 +147,6 @@ int main(int argc, char * argv[]) {
     for (int i = 0; i < nb_lignes_vote; i++){
         free(votes[i]);
     }
-    printf("Tout a bien été libéré\n");
 
     return 0;
 }

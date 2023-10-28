@@ -11,7 +11,7 @@
 
 typedef struct {
     int num_etu;
-    char key[15];
+    char key[30];
 } votant;
 
 typedef struct {
