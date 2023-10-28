@@ -29,10 +29,29 @@ int verifier_votant(char fichier[], int longueur, votant * votants[], int numero
 }
 
 
-/* Le main retournera :
-  - 0 s'il n'est aucun fichier
-  - 1 s'il est inscrit dans JUGEMENT
-  - 2 s'il est inscrit dans CONDORCET*/
+void convertirEnBinaire(const char* chaine, char* binaire) {
+    int index = 0;
+
+    for(int i = 0; chaine[i] != '\0'; i++) {
+        char caractere = chaine[i];
+        for(int j = 7; j >= 0; j--) {
+            binaire[index++] = ((caractere >> j) & 1) + '0';
+        }
+    }
+    binaire[index] = '\0'; // Ajouter le caractère nul de fin de chaîne
+}
+
+void creerHash(char *nom, char *prenom,char * key, char *hash){
+    // conversion de la clé en binaire
+    //unsigned long int valeur = strtoul(data, NULL, 16);
+    char cleBinaire[100];
+    convertirEnBinaire(key, cleBinaire);
+    strcat(nom, prenom);
+    strcat(nom, cleBinaire);
+    sha256ofString(nom, hash);
+}
+
+
 int main(int argc, char * argv[]) {
     SHA256_CTX sha;
     int len_data;
@@ -44,7 +63,7 @@ int main(int argc, char * argv[]) {
     votant* votant_condorcet[LONGUEUR_CONDORCET];
     int type_vote = AUCUN;
     char fichier_resultat_jugement[] = "./ResultatsVote/voteJugement.csv";
-    char fichier_resultat_condorcet[] = "./ResultatsVote/voteCondorcet.csv";
+    char fichier_resultat_condorcet[] = "./ResultatsVote/VoteCondorcet.csv";
     int nb_lignes_vote;
     char * fichier;
 
@@ -57,25 +76,33 @@ int main(int argc, char * argv[]) {
 
     int numero_etudiant = atoi(argv[1]);
     char* key = argv[2];
+    char nom[100];
+    char prenom[100];
 
-    // On vérifie si la personne est dans la liste des votants de Jugement
+    printf("Quel est votre nom (en MAJUSCULE) : ");
+    scanf("%s", &nom);
+    printf("Quel est votre prenom : ");
+    scanf("%s", &prenom);
+    printf("Bonjour %s %s !\n", prenom, nom);
+
+    // allocation mémoire des tableaux votants
     for (int i = 0; i < LONGUEUR_JUGEMENT; i++){
       votant_jugement[i] = malloc(sizeof(votant));
     }
     for (int i = 0; i < LONGUEUR_CONDORCET; i++){
       votant_condorcet[i] = malloc(sizeof(votant));
     }
+
+    // On vérifie si la personne est dans la liste des votants de Jugement
     type_vote += verifier_votant(fichier_votant_jugement,LONGUEUR_JUGEMENT, votant_jugement, numero_etudiant, key, JUGEMENT);
     // On vérifie si la personne est dans la liste des votants de Condorcet
     type_vote += verifier_votant(fichier_votant_condorcet,LONGUEUR_CONDORCET, votant_condorcet, numero_etudiant, key, CONDORCET);
 
-    // Si n'est inscrit dans aucun vote, on retourne 0
+    // Si la personne n'est dans aucune liste de vote on sort
     if (type_vote == AUCUN){
-      printf("Vous n'êtes pas dans la liste correspondant à cette clé.\n");
-      return AUCUN;
+      fprintf(stderr, "%s %s n'est présent dans aucune liste.\n", argv[1], argv[2]);
+      exit(1);
     }
-    printf("nickel type vote : %d\n", type_vote );
-
 
     // on crée la structure des votes en fonction du type de vote puis on l'initialise
     switch (type_vote){
@@ -88,36 +115,29 @@ int main(int argc, char * argv[]) {
         fichier = fichier_resultat_condorcet;
         break;
       default:
-        printf("Il y a une erreur lors de la vérification\n");
+        fprintf(stderr, "Il y a une erreur lors de la vérification\n");
         exit(1);
     }
 
+    // allocation mémoire du tableau votes
     vote* votes[nb_lignes_vote];
     for (int i = 0; i < nb_lignes_vote; i++){
       votes[i] = malloc(sizeof(vote));
     }
-    printf("ici\n" );
+
+    // on remplit le tableau avec les informations du fichier csv correspondant
     lecture_csv(fichier, NULL, votes);
-    // on crée le hash depuis la clé de votant pour la retrouver en suivant
-    printf("Correct ?\n" );
-    //memcpy(data, argv[2], strlen(argv[2])+1);
-    strcpy(data, argv[2]);
-    printf("data : |%s|\n", data );
-    sha256ofString(data, hash);
-    printf("reussi ?\n" );
 
+    // on crée le hash depuis le nom, le prenom et la clé du votant 
+    creerHash(nom, prenom, key, hash);
 
-
-    printf(" hash : %s\n", hash );
-    // On regarde dans les votes à quelle ligne se situe le vote du votant
+    // On regarde dans les votes à quelle ligne se situe le vote du votant et on sort 
     int ligne_resultat_vote =0;
     while (ligne_resultat_vote<nb_lignes_vote && strcmp(votes[ligne_resultat_vote]->hashed, hash) != 0) {
-        printf("ligne_resultat_vote %d \n", ligne_resultat_vote );
-        printf("%s | %s \n",votes[ligne_resultat_vote]->hashed, hash );
         ligne_resultat_vote++;
     }
     if (strcmp(votes[ligne_resultat_vote]->hashed, hash) != 0){
-      printf("Il y a une erreur le hash de votre vote n'est pas dans les votes\n");
+      fprintf(stderr, "Nous sommes navrés, nous ne trouvons pas votre vote...\nÊtes-vous sûr d'avoir rentré le bon nom et prenom selon le format demandé ?\n");
       exit(1);
     }
 
@@ -136,15 +156,12 @@ int main(int argc, char * argv[]) {
     for (int i = 0; i < LONGUEUR_JUGEMENT; i++){
         free(votant_jugement[i]);
     }
-
     for (int i = 0; i < LONGUEUR_CONDORCET; i++){
         free(votant_condorcet[i]);
     }
-
     for (int i = 0; i < nb_lignes_vote; i++){
         free(votes[i]);
     }
-
     printf("Tout a bien été libéré\n");
 
     return 0;

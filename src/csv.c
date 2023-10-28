@@ -5,10 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-
-
-
 void lecture_csv_votant(const char *nom_fichier, votant *votants[MAX_VOTANTS]) {
     FILE *file = fopen(nom_fichier, "r");
 
@@ -58,7 +54,6 @@ void lecture_csv_vote(const char * nom_fichier, vote *votes[MAX_VOTES]) {
         exit(1);
     }
 
-    printf("Juste ? \n" );
     while (fgets(line, sizeof(line), file)) {
         char *token = strtok(line, ",");
         int field_count = 0;
@@ -93,13 +88,11 @@ void lecture_csv(char* nom_fichier, votant* votants[MAX_VOTANTS], vote* votes[MA
     if (votes == NULL && votants != NULL) {
         lecture_csv_votant(nom_fichier, votants);
     } else if (votes != NULL && votants == NULL) {
-        printf("Bien dans csv vote\n");
         lecture_csv_vote(nom_fichier, votes);
     } else {
         fprintf(stderr, "erreur appel fonction\n");
         exit(1);
     }
-    printf("tout s'est bien déroulé\n");
 }
 
 
