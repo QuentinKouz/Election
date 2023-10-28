@@ -66,7 +66,7 @@ int main(int argc, char * argv[]) {
 
     printf("Quel est votre nom (en MAJUSCULE) : ");
     scanf("%s", &nom);
-    printf("Quel est votre prenom : ");
+    printf("Quel est votre prenom (MAJUSCULE premiere): ");
     scanf("%s", &prenom);
     printf("Bonjour %s %s !\n", prenom, nom);
 
