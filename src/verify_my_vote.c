@@ -113,10 +113,10 @@ int main(int argc, char * argv[]) {
     // on remplit le tableau avec les informations du fichier csv correspondant
     lecture_csv(fichier, NULL, votes);
 
-    // on crée le hash depuis le nom, le prenom et la clé du votant 
+    // on crée le hash depuis le nom, le prenom et la clé du votant
     creerHash(nom, prenom, key, hash);
 
-    // On regarde dans les votes à quelle ligne se situe le vote du votant et on sort 
+    // On regarde dans les votes à quelle ligne se situe le vote du votant et on sort
     int ligne_resultat_vote =0;
     while (ligne_resultat_vote<nb_lignes_vote && strcmp(votes[ligne_resultat_vote]->hashed, hash) != 0) {
         ligne_resultat_vote++;
@@ -126,16 +126,36 @@ int main(int argc, char * argv[]) {
       exit(1);
     }
 
+    char *burgers[] = {
+      "Burger Black Pepper",
+      "Burger Sud-Ouest",
+      "Thai Burger",
+      "Veggie Burger",
+      "Fire cracker",
+      "Roma",
+      "Crispy",
+      "Cheese Burger",
+      "Burger surprise",
+      "Country"
+    };
+
     // Affichage du vote
     if (type_vote == JUGEMENT) {
-      printf("Votre vote se situe à la ligne %d du fichier voteJugement.csv.\n", ligne_resultat_vote+2);
-    } else if (type_vote == CONDORCET){
-      printf("Votre vote se situe à la ligne %d du fichier VoteCondorcet.csv.\n", ligne_resultat_vote+2);
-    } else {
+      printf("Votre vote se situe à la ligne %d du fichier voteJugement.csv.\n", ligne_resultat_vote+1);
+      for(int i = 0; i < 10; i++) {
+          printf("Vote n°%d : - %s : (%d)\n", i+1, burgers[i], votes[ligne_resultat_vote]->votes[i]);
+        }
+    }
+    else if (type_vote == CONDORCET) {
+      printf("Votre vote se situe à la ligne %d du fichier VoteCondorcet.csv.\n", ligne_resultat_vote+1);
+      for(int i = 0; i < 10; i++) {
+          printf("Vote n°%d : - %s : (%d)\n", i+1, burgers[i], votes[ligne_resultat_vote]->votes[i]);
+      }
+    }
+    else {
       printf("Il y a une erreur lors de la vérification\n");
       exit(3);
     }
-
 
     // Libération de la mémoire
     for (int i = 0; i < LONGUEUR_JUGEMENT; i++){
@@ -150,3 +170,4 @@ int main(int argc, char * argv[]) {
 
     return 0;
 }
+
