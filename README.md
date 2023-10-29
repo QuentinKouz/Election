@@ -8,7 +8,7 @@ make
 
 Puis : 
 
-./verify_my_vote <nul_etudiant> <clé secrète>
+./verify_my_vote <num_etudiant> <clé secrète>
 
 Il faudra ensuite renseigner le nom en majuscule et le prénom avec la première lettre en majuscule.
 
