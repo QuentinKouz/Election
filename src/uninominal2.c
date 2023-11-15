@@ -1,4 +1,4 @@
-/// \file uninominal1.c
+/// \file uninominal2.c
 /// \brief Programme d'implémentation de la méthode uninominal à un tour.
 /// \author Equipe-2 : Salim Moussaoui, Maxime Cherraf, Quentin Kouzmitch, Nicolas Giry
 /// \date 9 novembre 2023
