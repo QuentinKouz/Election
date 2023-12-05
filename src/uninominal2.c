@@ -37,7 +37,6 @@ void ignorerEnTetes(FILE *fichier) {
 /// @param[in] candidats Tableau des candidats.
 /// @param[in] nbCandidats Nombre de candidats dans le tableau..
 void removeCandidat(Candidat candidat, Candidat candidats[], int *nbCandidats) {
-    //TODO : trouver bug -> ne remove pas le candidat
     int trouve = 0;
     for (int i=0; i<(*nbCandidats)-1; i++) {
         if (strcmp(candidat.nom, candidats[i].nom)==0) {
@@ -133,7 +132,8 @@ void determinerVainqueur(const char *nomFichier) {
     unsigned indiceVainqueurs [2];
     int nbVotes = 0;
 
-    // certains électeurs ont voté plusieurs fois "1" pour un candidat, le nombre total de votes diffère donc du nombre de votants, nous en avons besoin pour le score de chaque candidat en %
+    // certains électeurs ont voté plusieurs fois "1" pour un candidat, pour ne pas avoir à choisir le candidat voté nous les comptons tous, bien que cela donne plus de voix à certaines personnes.
+    // le nombre total de votes diffère donc du nombre de votants, et nous en avons besoin pour calculer le score de chaque candidat en %
     for (int i=0; i<MAX_CANDIDATS; i++) {
         nbVotes += candidats[i].score;
     }
@@ -142,7 +142,7 @@ void determinerVainqueur(const char *nomFichier) {
     removeCandidat(vainqueurs[0], candidats, &nbCandidats);
     vainqueurs[1] = trouverVainqueur(candidats, nbCandidats, &indiceVainqueurs[1]);
 
-    // comme nous enlevons le premier candidats, si le deuxième se trouve après, il sera décalé, nous rectifions donc ce décalage
+    // comme nous enlevons le premier candidats, si le deuxième se trouve après, il sera décalé de -1, nous rectifions donc ce décalage
     if (indiceVainqueurs[1]>=indiceVainqueurs[0]) {
         indiceVainqueurs[1] ++;
     }
@@ -151,7 +151,7 @@ void determinerVainqueur(const char *nomFichier) {
     scores[0] = ((float)vainqueurs[0].score / (float)(nbVotes)) * 100;
     scores[1] = ((float)vainqueurs[1].score / (float)(nbVotes)) * 100;
 
-    printf("Mode de scrutin : uninominal à deux tours, %d candidats, %d votants\n", MAX_CANDIDATS, nbVotants);
+    printf("Mode de scrutin : uninominal à deux tours, %d candidats, %d votants\n", MAX_CANDIDATS, nbVotants-1);
 
     printf("\tPremier tour : vainqueurs = %s (%.2f%%), %s (%.2f%%)\n", vainqueurs[0].nom, scores[0], vainqueurs[1].nom, scores[1]);
 

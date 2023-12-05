@@ -1,44 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define MAX_CANDIDATS 10
-#define MAX_COLONNES 20
-#define MAX_LIGNES 100
-#define MAX_TAILLE_CHAINE 100
-#define MAX_LIGNE_TAILLE 1024
-#define LIGNES 40
-#define COLONNES 14
-
-/************************************----------Structures de données----------*****************************************/
-typedef struct {
-    int indice;
-    char nom[50];
-} Candidat;
-
-// Structure pour stocker la matrice de chaînes de caractères dynamique
-typedef struct {
-    char ***vote;  // Tableau de pointeurs vers des chaînes de caractères
-    int ligne;     // Nombre de lignes
-    int colonne;   // Nombre de colonnes
-} t_mat_char_star_dyn;
-
-typedef struct {
-    int **donnees;
-    int lignes;
-    int colonnes;
-} MatriceDuel;
-
-typedef struct Arc {
-    int sommetDepart;
-    int sommetArrivee;
-    int poids;
-    struct Arc *suivant;
-} Arc;
-
-typedef struct {
-    Arc *debut;
-} ListeArcs;
+#include <stdbool.h>
+#include "structure_graphe.h"
 
 /************************************----------CANDIDATS----------*****************************************/
 
@@ -60,7 +24,7 @@ const char* obtenirNomCandidat(int indice) {
 
 /************************************----------LECTURE CSV----------*****************************************/
 
-void lecture_csv(const char *nom_fichier, t_mat_char_star_dyn *matrice, int ligne, int colonne) {
+void lecture_csv_score_condorcet(const char *nom_fichier, t_mat_char_star_dyn *matrice, int ligne, int colonne) {
     FILE *fichier = fopen(nom_fichier, "r");
 
     if (fichier == NULL) {
@@ -245,10 +209,80 @@ void afficherMatriceDuelAvecNoms(const MatriceDuel *matrice, int nbCandidats) {
 ListeArcs creerListeArcs() {
     ListeArcs liste;
     liste.debut = NULL;
+    liste.taille = 0;
     return liste;
 }
 
-void ajouterArc(ListeArcs *liste, int sommetDepart, int sommetArrivee, MatriceDuel * matriceDuels) {
+bool estDansGraphe(ListeArcs* liste, int sommet) {
+    Arc* e = liste->debut;
+    while(e != NULL) {
+        if (e->sommetDepart == sommet)
+            return true;
+        e = e->suivant;
+    }
+    return false;
+}
+
+void ajouterArc(ListeArcs *liste, const Arc *arc){
+    Arc* copie = malloc(sizeof(Arc));
+    copie->sommetDepart = arc->sommetDepart;
+    copie->sommetArrivee = arc->sommetArrivee;
+    copie->poids = arc->poids;
+    copie->suivant = NULL;
+    (liste->taille)++;
+    if (liste->debut == NULL) {
+        liste->debut = copie;
+    } else {
+        Arc *p = liste->debut;
+        while (p->suivant != NULL){
+            p = p->suivant;
+        }
+        p->suivant = copie;
+    }
+}
+
+void retirerArc(ListeArcs* liste, Arc *arc) {
+    if (liste == NULL || liste->debut == NULL) {
+        printf("La liste est vide ou n'existe pas.\n");
+        return;
+    }
+
+    Arc *p = liste->debut;
+    Arc *prev = NULL;
+
+    if (p == arc) { // Vérifier si l'arc à retirer est en tête de liste
+        liste->debut = p->suivant;
+        free(p);
+        (liste->taille)--;
+        return;
+    }
+
+    while (p != NULL && p != arc) {
+        prev = p;
+        p = p->suivant;
+    }
+
+    if (p == NULL) {
+        printf("L'arc à enlever n'est pas dans la liste\n");
+        return;
+    }
+
+    prev->suivant = p->suivant;
+    free(p);
+    (liste->taille)--;
+}
+
+void ajouterArcSommet(ListeArcs* graphe, ListeArcs* arcsAVerifier, int sommet) {
+    Arc* e = graphe->debut;
+    while(e != NULL) {
+        if (e->sommetDepart == sommet) {
+            ajouterArc(arcsAVerifier, e);
+        }
+        e = e->suivant;
+    }
+}
+
+void ajouterArcDepuisMatrice(ListeArcs *liste, int sommetDepart, int sommetArrivee, MatriceDuel * matriceDuels) {
     Arc *nouvelArc = (Arc *)malloc(sizeof(Arc));
     if (nouvelArc == NULL) {
         fprintf(stderr, "Erreur d'allocation de mémoire pour un arc\n");
@@ -261,31 +295,31 @@ void ajouterArc(ListeArcs *liste, int sommetDepart, int sommetArrivee, MatriceDu
     nouvelArc->suivant = liste->debut;
 
     liste->debut = nouvelArc;
+    (liste->taille)++;
 }
 
 
-ListeArcs creerListeArcsDepuisMatrice(MatriceDuel matriceDuels, int nbCandidats) {
-    ListeArcs liste = creerListeArcs();
+void creerListeArcsDepuisMatrice(MatriceDuel matriceDuels, int nbCandidats, ListeArcs * liste) {
+    //ListeArcs liste = creerListeArcs();
+
     int dejaVu[MAX_CANDIDATS][MAX_CANDIDATS]={0};
     
     for (int i = 0; i < nbCandidats; ++i) {
         for (int j = 0; j < nbCandidats; ++j) {
             if(!dejaVu[i][j] && !dejaVu[j][i]){
                 if (matriceDuels.donnees[i][j] > matriceDuels.donnees[j][i] && i!=j) 
-                    ajouterArc(&liste, i, j, &matriceDuels);
+                    ajouterArcDepuisMatrice(liste, i, j, &matriceDuels);
                     
                 
                 
                 else if (matriceDuels.donnees[i][j] < matriceDuels.donnees[j][i] && i!=j)
-                    ajouterArc(&liste, j, i, &matriceDuels);
+                    ajouterArcDepuisMatrice(liste, j, i, &matriceDuels);
                 
                 dejaVu[i][j]=1;
                 dejaVu[j][i]=1;
             }    
         }
     }
-
-    return liste;
 }
 
 void libererListeArcs(ListeArcs *liste) {
@@ -296,15 +330,17 @@ void libererListeArcs(ListeArcs *liste) {
         courant = suivant;
     }
     liste->debut = NULL;
+    liste->taille = 0;
 }
 
-void afficherListeArcs(const ListeArcs *liste, const Candidat candidats[MAX_CANDIDATS]) {
+void afficherListeArcs(const ListeArcs *liste) {
     Arc *courant = liste->debut;
-
+    int i=0;
     while (courant != NULL) {
-        printf("(%s -> %s, poids = %d)\n", candidats[courant->sommetDepart].nom, 
-               candidats[courant->sommetArrivee].nom, courant->poids);
+        //printf("(%s -> %s, poids = %d)\n", candidats[courant->sommetDepart].nom, candidats[courant->sommetArrivee].nom, courant->poids);
+        printf("%d: (%d -> %d), poids = %d\n", i, courant->sommetDepart, courant->sommetArrivee, courant->poids);
         courant = courant->suivant;
+        i++;
     }
 }
 
@@ -319,10 +355,10 @@ int nombrePossibiltePermutation(int nb_candidat){
 }
 
 
-
+/*
 int main() {
     
-    printf("nombre de possibilte de COMBINAISON = %d\n",nombrePossibiltePermutation(MAX_CANDIDATS));
+    printf("nombre de possibilites de COMBINAISONS = %d\n",nombrePossibiltePermutation(MAX_CANDIDATS));
     
 
     // Initialiser la matrice
@@ -330,7 +366,7 @@ int main() {
     initMatrice(&mat, LIGNES, COLONNES);
 
     // Charger le fichier CSV dans la matrice
-    lecture_csv("VoteCondorcet.csv", &mat, LIGNES, COLONNES);
+    lecture_csv_score_condorcet("ResultatsVote/VoteCondorcet.csv", &mat, LIGNES, COLONNES);
 
     // Afficher le contenu de la matrice à titre de test
     /*for (int i = 0; i < mat.ligne; ++i) {
@@ -338,7 +374,7 @@ int main() {
             printf("%s ", mat.vote[i][j]);
         }
         printf("\n");
-    }*/
+    }
     
     MatriceDuel matriceDuels = creerMatriceDuel(MAX_CANDIDATS, MAX_CANDIDATS);
 
@@ -365,6 +401,6 @@ int main() {
 
     return 0;
 }
-
+*/
 
 
