@@ -213,6 +213,14 @@ ListeArcs creerListeArcs() {
     return liste;
 }
 
+ListeDeListeArcs creerListeDeListeArcs() {
+    ListeDeListeArcs liste;
+    liste.debut = NULL;
+    liste.courant = NULL;
+    liste.taille = 0;
+    return liste;
+}
+
 bool estDansGraphe(ListeArcs* liste, int sommet) {
     Arc* e = liste->debut;
     while(e != NULL) {
@@ -239,6 +247,18 @@ void ajouterArc(ListeArcs *liste, const Arc *arc){
         }
         p->suivant = copie;
     }
+}
+
+void ajouterListeArc (ListeDeListeArcs* listeDeListe, ListeArcs* liste) {
+    if (listeDeListe->debut == NULL) {
+        listeDeListe->debut = liste;
+        listeDeListe->courant = liste;
+    } else {
+        listeDeListe->courant->suivant = liste;
+        listeDeListe->courant = listeDeListe->courant->suivant;
+        listeDeListe->courant->suivant = NULL;
+    }
+    listeDeListe->taille ++;
 }
 
 void retirerArc(ListeArcs* liste, Arc *arc) {
@@ -344,7 +364,15 @@ void afficherListeArcs(const ListeArcs *liste) {
     }
 }
 
-
+void afficherListeDeListeArcs (ListeDeListeArcs * liste) {
+    ListeArcs * e = liste->debut;
+    printf("Affichage:\n");
+    while (e!=NULL) {
+        afficherListeArcs(e);
+        printf("\tPoids: %d\n\n",e->poids);
+        e = e->suivant;
+    }
+}
 
 int nombrePossibiltePermutation(int nb_candidat){
     int nb_permutation=nb_candidat;
@@ -352,6 +380,18 @@ int nombrePossibiltePermutation(int nb_candidat){
         return nb_permutation*nombrePossibiltePermutation(nb_candidat-1);
     else 
         return 1;
+}
+
+int weight_at(ListeDeListeArcs* liste, int ind) {
+    if (ind<liste->taille) {
+        ListeArcs * courant = liste->debut;
+        for (int i=0; i<ind; i++) {
+            courant=courant->suivant;
+        }
+        return courant->poids;
+    }
+    printf("indice trop grand\n");
+    return -1;
 }
 
 

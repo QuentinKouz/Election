@@ -119,6 +119,16 @@ int trouverVainqueurCondorcet(ListeArcs grapheCondorcet) {
 }
 
 void obtenirGraphe(const char* fichier, ListeArcs * graphe) {
+    // obtenir liste arcs et matrice duels
+    t_mat_char_star_dyn mat;
+    initMatrice(&mat, LIGNES, COLONNES);
+    lecture_csv_score_condorcet(fichier, &mat, LIGNES, COLONNES);
+    MatriceDuel matriceDuels = creerMatriceDuel(MAX_CANDIDATS, MAX_CANDIDATS);
+    remplirMatriceDuel(&mat, &matriceDuels);
+    creerListeArcsDepuisMatrice(matriceDuels, MAX_CANDIDATS, graphe);
+}
+
+void obtenirGraphePaire(const char* fichier, ListeArcs * graphe) {
 
     // obtenir liste arcs et matrice duels
     t_mat_char_star_dyn mat;

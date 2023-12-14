@@ -37,10 +37,18 @@ typedef struct Arc {
     struct Arc *suivant;
 } Arc;
 
-typedef struct {
+typedef struct ListeArcs{
     Arc *debut;
     unsigned taille;
+    struct ListeArcs * suivant;
+    int poids;
 } ListeArcs;
+
+typedef struct {
+    ListeArcs * debut;
+    ListeArcs * courant;    
+    int taille;
+} ListeDeListeArcs;
 
 /*************************************************Méthodes**********************************************************/
 
@@ -55,6 +63,8 @@ MatriceDuel creerMatriceDuel(int lignes, int colonnes);
 void remplirMatriceDuel(const t_mat_char_star_dyn *matriceVote, MatriceDuel *matriceDuels);
 
 ListeArcs creerListeArcs();
+
+ListeDeListeArcs creerListeDeListeArcs();
 
 bool estDansGraphe(ListeArcs* liste, int sommet);
 
@@ -75,5 +85,9 @@ void libererListeArcs(ListeArcs *liste);
 void afficherMatriceDuelAvecNoms(const MatriceDuel *matrice, int nbCandidats);
 
 void afficherListeArcs(const ListeArcs *liste);
+
+void afficherListeDeListeArcs (ListeDeListeArcs * liste);
+
+int weight_at(ListeDeListeArcs* liste, int ind);
 
 #endif // STRUCTURE_GRAPHE_H
