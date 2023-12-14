@@ -4,7 +4,7 @@ Groupe 2: Nicolas Giry, Quentin Kouzmitch, Salim Moussaoui, Maxime Cherraf
 
 Pour exécuter le programme verify_my_vote :
 
-make
+make verify_my_vote
 
 Puis : 
 
