@@ -11,13 +11,3 @@ Puis :
 ./verify_my_vote <num_etudiant> <clé secrète>
 
 Il faudra ensuite renseigner le nom en majuscule et le prénom avec la première lettre en majuscule.
-
-Vous pouvez utiliser pour tester : 
-
-num etu : 22106234
-
-key : SvcBJ37b
-
-nom : MOUSSAOUI
-
-prenom : Salim
